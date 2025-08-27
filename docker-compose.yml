@@ -1,0 +1,119 @@
+services:
+  tenant-service:
+    image: python:3.9-slim
+    working_dir: /app
+    volumes:
+      - ./tenant_service:/app
+      - epos-db:/app/db
+    ports:
+      - "5004:5004"
+    command: sh -c "pip install -r requirements.txt && python app.py"
+    environment:
+      - DB_PATH=/app/db/epos.db
+    restart: unless-stopped
+
+  client-service:
+    image: python:3.9-slim
+    working_dir: /app
+    volumes:
+      - ./client-service:/app
+      - epos-db:/app/db
+    ports:
+      - "5001:5001"
+    command: sh -c "pip install -r requirements.txt && python app.py"
+    environment:
+      - DB_PATH=/app/db/epos.db
+      - TENANT_SERVICE_URL=http://tenant-service:5004
+    depends_on:
+      - tenant-service
+    restart: unless-stopped
+
+  invoice-service:
+    image: python:3.9-slim
+    working_dir: /app
+    volumes:
+      - ./invoice-service:/app
+      - epos-db:/app/db
+    ports:
+      - "5002:5002"
+    command: sh -c "pip install -r requirements.txt && python app.py"
+    environment:
+      - DB_PATH=/app/db/epos.db
+      - TENANT_SERVICE_URL=http://tenant-service:5004
+    depends_on:
+      - tenant-service
+    restart: unless-stopped
+
+  expenses-service:
+    image: python:3.9-slim
+    working_dir: /app
+    volumes:
+      - ./expenses-service:/app
+      - epos-db:/app/db
+    ports:
+      - "5003:5003"
+    command: sh -c "pip install -r requirements.txt && python app.py"
+    environment:
+      - DB_PATH=/app/db/epos.db
+      - TENANT_SERVICE_URL=http://tenant-service:5004
+    depends_on:
+      - tenant-service
+    restart: unless-stopped
+
+  web-app:
+    image: python:3.9-slim
+    working_dir: /app
+    volumes:
+      - ./web-app:/app
+      - epos-db:/app/db
+    ports:
+      - "5000:5000"
+    command: sh -c "pip install -r requirements.txt && python app.py"
+    environment:
+      - CLIENT_SERVICE_URL=http://client-service:5001
+      - INVOICE_SERVICE_URL=http://invoice-service:5002
+      - EXPENSES_SERVICE_URL=http://expenses-service:5003
+      - DB_PATH=/app/db/epos.db
+    depends_on:
+      - client-service
+      - invoice-service
+      - expenses-service
+    restart: unless-stopped
+
+  admin-web:
+    image: python:3.9-slim
+    working_dir: /app
+    volumes:
+      - ./admin_web:/app
+      - epos-db:/app/db
+    ports:
+      - "5005:5005"
+    command: sh -c "pip install -r requirements.txt && python app.py"
+    environment:
+      - DB_PATH=/app/db/epos.db
+    depends_on:
+      - tenant-service
+    restart: unless-stopped
+
+  public-registration:
+    image: python:3.9-slim
+    working_dir: /app
+    volumes:
+      - ./public_registration:/app
+      - epos-db:/app/db
+    ports:
+      - "3000:3000"
+    command: sh -c "pip install -r requirements.txt && python app.py"
+    environment:
+      - DB_PATH=/app/db/epos.db
+    depends_on:
+      - tenant-service
+    restart: unless-stopped
+
+volumes:
+  epos-db:
+    driver: local
+    driver_opts:
+      type: none
+      device: /c/Users/Administrator/PycharmProjects/EPOS/db
+      o: bind
