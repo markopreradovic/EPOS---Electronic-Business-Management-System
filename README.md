@@ -70,10 +70,4 @@ The project is organized into multiple microservices, each running in its own Do
 - **Public Registration**: Form for new tenants to request activation, with real-time validation and feedback.
 - **Statistics**: Web app displays expense statistics (total amount, count, by category, and status).
 
-## Missing Functionalities
-- **User Authentication**: Currently relies on API keys; a full user login system with roles (e.g., admin, tenant) is missing.
-- **Payment Integration**: No support for processing payments or generating payment links for invoices.
-- **Reporting Module**: Detailed financial reports and export functionality (e.g., PDF generation) are not implemented.
-- **Real-Time Notifications**: Lack of real-time updates or email notifications for tenant requests, invoice statuses, or expense approvals.
-- **Error Handling**: Limited robust error recovery (e.g., RabbitMQ connection retries could be enhanced).
-- **Frontend Enhancements**: Basic UI with no advanced interactivity (e.g., charts, drag-and-drop).
+
